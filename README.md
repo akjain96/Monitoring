@@ -16,7 +16,7 @@ This document is made to guide end-user to setup Application specific monitoring
 - Metric beat (Shippers)
 - Cloud Instances / Virtual machines
 
-##Pre-requisites
+## Pre-requisites
 
 1. Install Docker (refer to official docs if not installed https://docs.docker.com/engine/install/)
 2. Install Docker Compose (refer to official docs if not installed https://docs.docker.com/compose/install/)
