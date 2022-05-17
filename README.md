@@ -159,20 +159,20 @@ location /nginx_status {
                 # First attempt to serve request as file, then
                 # as directory, then fall back to displaying a 404.
                 #try_files $uri $uri/ =404;
-            ```
+            
             stub_status;
         }
 ```
-​
+
 C. Test the Nginx configuration:
 ``` nginx -t ```
-​
+
 D. Reload the Nginx configuration:
 ``` nginx -s reload ```
-​
+
 E . Test **stub_status**:
 ``` curl http://<localhost/public/privateIP>/nginx_status ```
-​
+
 ===
 After configuring this, we need to configure Metricbeat and filebeat packages inside slave (NGINX) Instance. 
 ​
