@@ -151,13 +151,11 @@ If both the services are running fine, you should be able to see kibana console 
 You can get more info by inspecting the logs using docker-compose logs -f kibana command.
 
 
-## Installing NGINX Web Server (SLAVE Configuration):
+## Modifications required for NGINX Web Server (SLAVE Configuration):
 
 **Description :**
 NGINX is a high performance web server that can hosts websites and can have another different usage such as Reverse Proxy.
 ​
-##### Steps to install :
-
 
 ###### We need to do some additional modifications in order to send metrics and application logs from NGINX web server to Kibana dashboard :
 
