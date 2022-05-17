@@ -302,11 +302,9 @@ After completing all the above steps we have enabled sending RPS metrics from NG
 ​
 ## **Additional Step :**
 To send application and error logs (NGINX) to kibana :
-​
-​
+
 **1. Download and install Filebeat**
-​
-​
+
 Copy snippet
 
 ```
