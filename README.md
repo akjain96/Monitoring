@@ -128,23 +128,24 @@ This again ensures that the data on your Elasticsearch container persists even w
 ##### Step 5:
 
 **Run the setup**
+
 Now after doing this all we are ready to setup our docker containers. Open terminal and navigate to the folder containing docker-compose.yml file and run the command:
-​
-`docker-compose up -d`
-​
+
+```docker-compose up -d```
+
 This will start pulling the images from **docker.elastic.co**. Once the images are pulled, it will start the containers.
-​
+
 **Command to check docker compose stack logs :**
-``docker-compose logs -f {serviceName}``
-​
+```docker-compose logs -f {serviceName}```
+
 **A common error that you might encounter is related to vm.max_map_count being too low. You can fix it by running the command**
-​
-`sysctl -w vm.max_map_count=262144`
-​
+
+```sysctl -w vm.max_map_count=262144```
+
 If both the services are running fine, you should be able to see kibana console on http://[public/private IP]:5601 on your web browser. Give it a few minutes as it takes some time for Elasticsearch cluster to be ready and for Kibana to connect to it.
-​
+
 You can get more info by inspecting the logs using docker-compose logs -f kibana command.
-​
+
 
 ## Installing NGINX Web Server (SLAVE Configuration):
 
