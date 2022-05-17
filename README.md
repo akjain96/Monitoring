@@ -1,10 +1,10 @@
 ![Elastic Search, Kibana](https://images.contentstack.io/v3/assets/bltefdd0b53724fa2ce/blt280217a63b82a734/6202d3378b1f312528798412/elastic-logo.svg)
-
+​
 # Setting up Monitoring on NGINX Instances 
-
+​
 #### Objective :
 This document is made to guide end-user to setup Application specific monitoring on NGINX High Performance web-server. 
-
+​
 #### Tech Stack Used : 
 - Elasticsearch (Self-hosted)
 - Kibana
@@ -12,12 +12,12 @@ This document is made to guide end-user to setup Application specific monitoring
 - Metric beat (Shippers)
 - Cloud Instances / Virtual machines
 ## Features
-
+​
 ##### Pre-requisites
 1. Install Docker (refer to official docs if not installed https://docs.docker.com/engine/install/)
 2. Install Docker Compose (refer to official docs if not installed https://docs.docker.com/compose/install/)
 3. Creating 2 different cloud hosted instances or Self hosted virtualized environment (Running virtual machines on OracleBox, VMWare etc.) (for hosting NGINX and ELK Stack), Preferably Ubuntu 20.04 Instances. 
-
+​
 Minimum specs requirement : 
 ELK Stack Instance : 8 GiB RAM, 30 GB of General Purpose SSD Storage
 NGINX Instance : 4 GiB RAM, 10 GB of General Purpose SSD Storage
@@ -26,18 +26,18 @@ NGINX Instance : 4 GiB RAM, 10 GB of General Purpose SSD Storage
                                                     
 *Setting up Elastic Search and Kibana (MASTER Configuration)* :
 For setting up Elastic Search and Kibana firstly we need to create 2 docker containers. 
-
+​
 ##### Step 1: 
 Create a directory on your machine (VM/Cloud Instance) for this project : 
-
+​
 `mkdir $HOME/elasticsearch7-docker`
 `cd $HOME/elasticsearch7-docker`
-
+​
 ##### Step 2 : 
 Create docker-compose.yml file
-
+​
 Inside that directory (after running above commands) create a docker-compose.yml file with contents as shown below
-
+​
 #### docker-compose.yml
 ```
 version: '3'
@@ -48,7 +48,7 @@ services:
       - elasticsearch.env
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
-
+​
   kibana:
     image: docker.elastic.co/kibana/kibana:7.9.2
     env_file:
@@ -56,15 +56,15 @@ services:
     ports:
       - 5601:5601
 ```
-
+​
 **IMPORTANT NOTE** : Do not use docker hub images of **elasticsearch** and **kibana** <= **7.9.2** as they are giving issues in docker networking. This is tested and verified. 
-
+​
 ##### Step 3 : 
 After creating docker-compose.yml, create two different env files :
 1. elasticsearch.env
 2. kibana.env 
 to pass environment variables to docker-compose. 
-
+​
 #### elasticsearch.env
 ```
 cluster.name=elasticsearch-cluster
@@ -72,137 +72,75 @@ network.host=0.0.0.0
 bootstrap.memory_lock=true
 discovery.type=single-node
 ```
-
+​
 Note: 
 1. With latest version of Elasticsearch* , it is necessary to set the option **discovery.type=single-node** for a single node cluster otherwise it won't start
 2. By default kibana instance is running on port : 5601
 3. Elasticsearch instance is running on port : 9200
-
+​
 #### kibana.env
 ```
 SERVER_HOST="0"
 ELASTICSEARCH_URL=http://elasticsearch:9200
 XPACK_SECURITY_ENABLED=false
 ```
-
+​
 ##### Step 4: 
 Create Elasticsearch data directory
-
+​
 Navigate to the directory where you have created your docker-compose.yml file and create a subdirectory data. Then inside the data directory create another directory elasticsearch.
-
+​
 ```
 mkdir data
 cd data
 mkdir elasticsearch
 ```
-
+​
 This directories are created by us as : 
 We will be mounting this directory to the data directory of elasticsearch container (for data persistence). So, In docker-compose.yml file there are these lines:
-
+​
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data
       
 This again ensures that the data on your Elasticsearch container persists even when the container is stopped and restarted later. So, you won't lose your indices when you restart the containers.
-
+​
 ##### Step 5: 
 Run the setup
 Now after doing this all we are ready to setup our docker containers. Open terminal and navigate to the folder containing docker-compose.yml file and run the command:
-
+​
 ``` docker-compose up -d ```
-
+​
 This will start pulling the images from **docker.elastic.co**. Once the images are pulled, it will start the containers.
-
+​
 **Command to check docker compose stack logs :** 
 docker-compose logs -f {serviceName}
-
+​
 **A common error that you might encounter is related to vm.max_map_count being too low. You can fix it by running the command**
-
+​
 ```sysctl -w vm.max_map_count=262144```
-
+​
 If both the services are running fine, you should be able to see kibana console on http://[public/private IP]:5601 on your web browser. Give it a few minutes as it takes some time for Elasticsearch cluster to be ready and for Kibana to connect to it. 
-
+​
 You can get more info by inspecting the logs using docker-compose logs -f kibana command.
-
+​
 ##### Installing NGINX Web Server (SLAVE Configuration): 
-
+​
 Description :
 NGINX is a high performance web server that can hosts websites and can have another different usage such as Reverse Proxy. 
-
+​
 ##### Steps to install : 
-
-###### Step 1: 
-Because Nginx is available in Ubuntu’s default repositories, it is possible to install it from these repositories using the apt packaging system.
-
-```
-sudo apt update
-sudo apt install nginx 
-```
- 
-###### Step 2: Adjusting System Firewall 
-
-List the application configurations that ufw knows how to work with by typing:
-
-``` sudo ufw app list ```
-
-You should get a listing of the application profiles:
-
-```
-Output
-Available applications:
-  Nginx Full
-  Nginx HTTP
-  Nginx HTTPS
-  OpenSSH
-```
-
-As demonstrated by the output, there are three profiles available for Nginx:
-
-**Nginx Full**: This profile opens both port 80 (normal, unencrypted web traffic) and port 443 (TLS/SSL encrypted traffic)
-**Nginx HTTP**: This profile opens only port 80 (normal, unencrypted web traffic)
-**Nginx HTTPS**: This profile opens only port 443 (TLS/SSL encrypted traffic)
-
-You can enable this (any profile) by typing:
-
-``` sudo ufw allow 'Nginx HTTP' ```
-
-You can verify the change by typing:
-
-``` sudo ufw status ```
-The output will indicated which HTTP traffic is allowed:
-
-```
-Output
-Status: active
-
-To                         Action      From
---                         ------      ----
-OpenSSH                    ALLOW       Anywhere                  
-Nginx HTTP                 ALLOW       Anywhere                  
-OpenSSH (v6)               ALLOW       Anywhere (v6)             
-Nginx HTTP (v6)            ALLOW       Anywhere (v6)
-```
-
-###### Step 3 – Checking your Web Server
-At the end of the installation process, Ubuntu 20.04 starts Nginx. The web server should already be up and running.
-
-You can access nginx web server by typing URL :
-http://<Public/Private IP of your cloud/VM server>:80
-
-You will get default NGINX page. 
-
-NOTE : If you are using any cloud to host instance please allow port 80, 443 (for nginx), port : 5601, 9002 (for Elasticsearch, kibana stack)
-
-###### After configuring this, we need to do some additional modifications in order to send metrics and application logs from NGINX web server to Kibana dashboard : 
+​
+###### We need to do some additional modifications in order to send metrics and application logs from NGINX web server to Kibana dashboard : 
 1. Some configuration changes in NGINX Instance : 
 A. To send NGINX specific metrics to kibana dashboard, we need to check whether : 
 **ngx_http_stub_status_module** is enabled or not (on NGINX).
-
+​
 To check whether nginx, stub status module is enabled or not, you can run below command : 
 ``` nginx -V 2>&1 | grep --color -- --with-http_stub_status_module ```
-
+​
 B. We need to enable "**/nginx_status**" route path on NGINX web server (most important). 
 This part ultimately help nginx to send metrics to kibana using **metricbeat shipper**.
-
+​
 To enable /nginx_status route we need to : 
 Go to : /etc/nginx/sites-available/default (Open this file)
 **Edit location code snippet**
@@ -214,7 +152,7 @@ location / {
                 try_files $uri $uri/ =404;
         }
 ```
-
+​
 #### After :
 ```
 location /nginx_status {
@@ -225,32 +163,32 @@ location /nginx_status {
             stub_status;
         }
 ```
-
+​
 C. Test the Nginx configuration:
 ``` nginx -t ```
-
+​
 D. Reload the Nginx configuration:
 ``` nginx -s reload ```
-
+​
 E . Test **stub_status**:
 ``` curl http://<localhost/public/privateIP>/nginx_status ```
-
+​
 ===
 After configuring this, we need to configure Metricbeat and filebeat packages inside slave (NGINX) Instance. 
-
+​
 ##### Download and install Metricbeat
-
+​
 STEP 1:
 Copy below snippet
 ``` curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.9.2-amd64.deb 
 sudo dpkg -i metricbeat-7.9.2-amd64.deb
 ```
-
+​
 STEP 2:
 Edit the configuration
-
+​
 ** Modify /etc/metricbeat/metricbeat.yml to set the connection information: **
-
+​
 Copy snippet
 ```
 output.elasticsearch:
@@ -261,73 +199,73 @@ setup.kibana:
   host: "<kibana_url>"
 ```
 Where <password> is the password of the elastic user, <es_url> is the URL of Elasticsearch, and <kibana_url> is the URL of Kibana.
-
+​
 3. Enable and configure the nginx, metricbeat module
-
+​
 Copy snippet
-
+​
 ```
 sudo metricbeat modules enable nginx
 ```
 Modify the settings in the /etc/metricbeat/modules.d/nginx.yml file.
-
+​
 (Modify according to below code snippet)
-
+​
 The configuration file of Metricbeat nginx module is
-
+​
 /etc/metricbeat/modules.d/nginx.yml
 Modify the configuration file.
-
+​
 before fixing:
 ```
-
+​
 - module: nginx
   #metricsets:
   #  - stubstatus
   period: 10s
-
+​
   # Nginx hosts
   hosts: ["http://127.0.0.1"]
-
+​
   # Path to server status. Default server-status
   #server_status_path: "server-status"
-
+​
   #username: "user"
   #password: "secret"
 ```
-
+​
 After modification:
 ```
 - module: nginx
   metricsets: ["stubstatus"]
   enabled: true
   period: 10s
-
+​
   # Nginx hosts
   hosts: ["http://<localhost/public/private IP of NGINX>"]
-
+​
   # Path to server status. Default server-status
   server_status_path: "nginx_status"
 ```
-
+​
 4. Start Metricbeat
-
+​
 The setup command loads the Kibana dashboards. If the dashboards are already set up, omit this command.
-
+​
 Copy snippet
 ```
 sudo metricbeat setup
 sudo service metricbeat start
 ```
 ====
-
+​
 After completing all the above steps we have enabled sending RPS metrics from NGINX web server to Kibana. And we can see the same on kibana dashboard. Metrics such as System Metrics (CPU, Memory and others) + RPS Metrics. 
-
+​
 Additional Step : 
 To send application and error logs (NGINX) to kibana : 
-
+​
 **1. Download and install Filebeat**
-
+​
 Copy snippet
 ```
 curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.9.2-amd64.deb
@@ -335,7 +273,7 @@ sudo dpkg -i filebeat-7.9.2-amd64.deb
 ```
 **2. Edit the configuration**
 Modify /etc/filebeat/filebeat.yml to set the connection information:
-
+​
 Copy snippet
 ```
 output.elasticsearch:
@@ -346,63 +284,63 @@ setup.kibana:
   host: "<kibana_url>"
 ```
 Where <password> is the password of the elastic user, <es_url> is the URL of Elasticsearch, and <kibana_url> is the URL of Kibana.
-
+​
 **3. Enable and configure the nginx (filebeat) module**
-
+​
 Copy snippet
 ```
 sudo filebeat modules enable nginx
 ```
-
+​
 **Specify the Nginx log file path to be collected (optional)**
 edit - /etc/filebeat/modules.d/nginx.yml
-
+​
 Specify the Nginx log file path to be collected, and support glob fuzzy matching.
-
+​
 Example:
 ```
 before fixing:
-
+​
 - module: nginx
   # Access logs
   access:
     enabled: true
-
+​
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
     #var.paths:
-
+​
   # Error logs
   error:
     enabled: true
-
+​
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
     #var.paths:
 ```
 ```
 After modification:
-
+​
 - module: nginx
   # Access logs
   access:
     enabled: true
-
+​
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
     var.paths: ["/var/log/nginx/*access.log"]
-
+​
   # Error logs
   error:
     enabled: true
-
+​
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
     var.paths: ["/var/log/nginx/*error.log"]
 ```
 **4. Start Filebeat**
 The setup command loads the Kibana dashboards. If the dashboards are already set up, omit this command.
-
+​
 ##### Copy snippet
 ```
 sudo filebeat setup
