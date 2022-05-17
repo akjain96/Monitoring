@@ -135,10 +135,14 @@ Now after doing this all we are ready to setup our docker containers. Open termi
 
 This will start pulling the images from **docker.elastic.co**. Once the images are pulled, it will start the containers.
 
+
 **Command to check docker compose stack logs :**
+
 ```docker-compose logs -f {serviceName}```
 
-**A common error that you might encounter is related to vm.max_map_count being too low. You can fix it by running the command**
+**A common error that you might encounter is related to vm.max_map_count being too low. 
+You can fix it by running the command**
+
 
 ```sysctl -w vm.max_map_count=262144```
 
