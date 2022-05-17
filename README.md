@@ -10,7 +10,7 @@ This document is made to guide end-user to setup Application specific monitoring
 - Kibana
 - File beat (Shippers)
 - Metric beat (Shippers)
-- AWS Instances
+- Cloud Instances / Virtual machines
 ## Features
 
 ##### Pre-requisites
