@@ -308,6 +308,7 @@ sudo service metricbeat start
 After completing all the above steps we have enabled sending RPS metrics from NGINX web server to Kibana. And we can see the same on kibana dashboard. Metrics such as System Metrics (CPU, Memory and others) + RPS Metrics.
 
 ## **Additional Step :**
+
 To send application and error logs (NGINX) to kibana :
 
 **1. Download and install Filebeat**
@@ -320,6 +321,7 @@ sudo dpkg -i filebeat-7.9.2-amd64.deb
 ```
 
 **2. Edit the configuration**
+   
 Modify /etc/filebeat/filebeat.yml to set the connection information:
 
 Copy snippet
@@ -345,6 +347,7 @@ sudo filebeat modules enable nginx
 
 ​
 **Specify the Nginx log file path to be collected (optional)**
+
 edit - /etc/filebeat/modules.d/nginx.yml
 ​
 Specify the Nginx log file path to be collected, and support glob fuzzy matching.
