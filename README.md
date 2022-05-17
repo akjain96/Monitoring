@@ -212,7 +212,7 @@ After configuring this, we need to configure Metricbeat and filebeat packages in
 
 ## Download and install Metricbeat
 
-STEP 1:
+##### STEP 1:
 Copy below snippet
 
 ```
@@ -221,7 +221,7 @@ sudo dpkg -i metricbeat-7.9.2-amd64.deb
 ```
 
 ​
-STEP 2:
+##### STEP 2:
 Edit the configuration
 ​
 ** Modify /etc/metricbeat/metricbeat.yml to set the connection information: **
@@ -238,7 +238,8 @@ setup.kibana:
 ```
 
 Where <password> is the password of the elastic user, <es_url> is the URL of Elasticsearch, and <kibana_url> is the URL of Kibana.
-​ 3. Enable and configure the nginx, metricbeat module
+##### STEP 3. 
+Enable and configure the nginx, metricbeat module
 ​
 Copy snippet
 ​
@@ -290,7 +291,7 @@ After modification:
   server_status_path: "nginx_status"
 ```
 
-​ 4. Start Metricbeat
+##### STEP 4. Start Metricbeat
 ​
 The setup command loads the Kibana dashboards. If the dashboards are already set up, omit this command.
 ​
