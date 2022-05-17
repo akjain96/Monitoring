@@ -336,7 +336,8 @@ setup.kibana:
 ```
 
 Where <password> is the password of the elastic user, <es_url> is the URL of Elasticsearch, and <kibana_url> is the URL of Kibana.
-​
+
+
 **3. Enable and configure the nginx (filebeat) module**
 
 Copy snippet
