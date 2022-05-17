@@ -291,7 +291,8 @@ After modification:
   server_status_path: "nginx_status"
 ```
 
-##### STEP 4. Start Metricbeat
+##### STEP 4. 
+Start Metricbeat
 ​
 The setup command loads the Kibana dashboards. If the dashboards are already set up, omit this command.
 ​
@@ -305,7 +306,7 @@ sudo service metricbeat start
 ====
 ​
 After completing all the above steps we have enabled sending RPS metrics from NGINX web server to Kibana. And we can see the same on kibana dashboard. Metrics such as System Metrics (CPU, Memory and others) + RPS Metrics.
-​
+
 ## **Additional Step :**
 To send application and error logs (NGINX) to kibana :
 
@@ -320,7 +321,7 @@ sudo dpkg -i filebeat-7.9.2-amd64.deb
 
 **2. Edit the configuration**
 Modify /etc/filebeat/filebeat.yml to set the connection information:
-​
+
 Copy snippet
 
 ```
@@ -335,7 +336,7 @@ setup.kibana:
 Where <password> is the password of the elastic user, <es_url> is the URL of Elasticsearch, and <kibana_url> is the URL of Kibana.
 ​
 **3. Enable and configure the nginx (filebeat) module**
-​
+
 Copy snippet
 
 ```
@@ -391,6 +392,7 @@ After modification:
 ```
 
 **4. Start Filebeat**
+
 The setup command loads the Kibana dashboards. If the dashboards are already set up, omit this command.
 ​
 
