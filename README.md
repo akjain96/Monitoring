@@ -323,3 +323,88 @@ sudo service metricbeat start
 
 After completing all the above steps we have enabled sending RPS metrics from NGINX web server to Kibana. And we can see the same on kibana dashboard. Metrics such as System Metrics (CPU, Memory and others) + RPS Metrics. 
 
+Additional Step : 
+To send application and error logs (NGINX) to kibana : 
+
+**1. Download and install Filebeat**
+
+Copy snippet
+```
+curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.9.2-amd64.deb
+sudo dpkg -i filebeat-7.9.2-amd64.deb
+```
+**2. Edit the configuration**
+Modify /etc/filebeat/filebeat.yml to set the connection information:
+
+Copy snippet
+```
+output.elasticsearch:
+  hosts: ["<es_url>"]
+  username: "elastic"
+  password: "<password>"
+setup.kibana:
+  host: "<kibana_url>"
+```
+Where <password> is the password of the elastic user, <es_url> is the URL of Elasticsearch, and <kibana_url> is the URL of Kibana.
+
+**3. Enable and configure the nginx (filebeat) module**
+
+Copy snippet
+```
+sudo filebeat modules enable nginx
+```
+
+**Specify the Nginx log file path to be collected (optional)**
+edit - /etc/filebeat/modules.d/nginx.yml
+
+Specify the Nginx log file path to be collected, and support glob fuzzy matching.
+
+Example:
+```
+before fixing:
+
+- module: nginx
+  # Access logs
+  access:
+    enabled: true
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+  # Error logs
+  error:
+    enabled: true
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+```
+```
+After modification:
+
+- module: nginx
+  # Access logs
+  access:
+    enabled: true
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    var.paths: ["/var/log/nginx/*access.log"]
+
+  # Error logs
+  error:
+    enabled: true
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    var.paths: ["/var/log/nginx/*error.log"]
+```
+**4. Start Filebeat**
+The setup command loads the Kibana dashboards. If the dashboards are already set up, omit this command.
+
+##### Copy snippet
+```
+sudo filebeat setup
+sudo service filebeat start
+```
